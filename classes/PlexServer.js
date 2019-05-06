@@ -8,20 +8,30 @@ class PlexServer {
         this.token = token;
     }
 
-    request(url, method) {
+    makeRequestURL(url){
+        if (!url.includes("?"))
+            return this.server + url + "?X-Plex-Token=" + this.token;
+        else
+            return this.server + url + "&X-Plex-Token=" + this.token;
+    }
+
+    request(url, method, mime) {
         if (!method)
             method = "GET";
+        if (!mime)
+            mime = "application/json";
+        const binaryWhitelist = ["application/json"];
+        const returnBinary = !binaryWhitelist.includes(mime);
         method = method.toUpperCase();
-        if (!url.includes("?"))
-            url = this.server + url + "?X-Plex-Token=" + this.token;
-        else
-            url = this.server + url + "&X-Plex-Token=" + this.token;
+        url = this.makeRequestURL(url);
         return new Promise(resolve => {
             request({
                 method: method, uri: encodeURI(url), headers: {     //enocdeURI takes care of chars like é which
-                    "Accept": "application/json"                   //would otherwise result in malfored requests
-                }
+                    "Accept": mime                   //would otherwise result in malfored requests
+                }, encoding: returnBinary ? null : undefined
             }, (error, response, body) => {
+                if (error)
+                    debugger;
                 if (response.statusCode === 401)
                     throw new Error("Check Plex Token");
                 if (method === "PUT" && body !== "")
@@ -30,9 +40,8 @@ class PlexServer {
                     resolve(JSON.parse(body));
                 }
                 catch (e) {
-                    debugger;
+                    resolve(body);
                 }
-
             });
         });
     }
