@@ -14,15 +14,26 @@ class PlexGenericFile {
         util.valueCheck(this);
     }
 
-    async getThumbnail(x, y) {
+    getThumbnailURL(x, y) {
         let undefCount = 0;
         undefCount += x === undefined;
         undefCount += y === undefined;
         if (undefCount === 1)
             throw new Error("Either specify none or both values");
         if (undefCount === 2)
-            return await this.server.request(this.thumbpath, "GET");
-        return await this.server.request("/photo/: /transcode?width=" + x + "&height=" + y + "&minSize=1&url=" + this.thumbpath, "GET");
+            return this.server.makeRequestURL(this.thumbpath);
+        return this.server.makeRequestURL("/photo/:/transcode?width=" + x + "&height=" + y + "&minSize=1&url=" + this.thumbpath);
+    }
+
+    async getThumbnailBuffer(x, y) {
+        let undefCount = 0;
+        undefCount += x === undefined;
+        undefCount += y === undefined;
+        if (undefCount === 1)
+            throw new Error("Either specify none or both values");
+        if (undefCount === 2)
+            return await this.server.request(this.thumbpath, "GET", "image/png");
+        return await this.server.request("/photo/:/transcode?width=" + x + "&height=" + y + "&minSize=1&url=" + this.thumbpath, "GET", "image/png");
     }
 
     async addTags(tagarray) {
