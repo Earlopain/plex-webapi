@@ -15,5 +15,9 @@
   "dependencies": {
     "request": "^2.88.0",
     "xml2js": "^0.4.19"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.com:Earlopain/plex-webapi.git"
   }
 }
