@@ -46,6 +46,11 @@ class PlexServer {
         });
     }
 
+    async getAllSections(){
+        const json = await this.request("/library/sections")
+        return json.MediaContainer.Directory;
+    }
+
     async sectionNameToKey(string) {
         const json = await this.request("/library/sections");
         for (const dir of json.MediaContainer.Directory) {
