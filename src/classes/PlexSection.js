@@ -1,6 +1,6 @@
 const PlexPicture = require("./PlexPicture.js");
 const PlexArtist = require("./PlexArtist.js");
-const util = require("./../util.js");
+const util = require("../util.js");
 
 class PlexSection {
     constructor(json, server) {

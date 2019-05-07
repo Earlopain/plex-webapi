@@ -1,5 +1,5 @@
 const PlexGenericFile = require("./PlexGenericFile.js");
-const util = require("./../util.js");
+const util = require("../util.js");
 
 class PlexArtist extends PlexGenericFile {
     constructor(data, sectionID, server) {

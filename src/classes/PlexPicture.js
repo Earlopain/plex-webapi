@@ -1,5 +1,5 @@
 const PlexFileContent = require("./PlexFileContent.js");
-const util = require("./../util.js");
+const util = require("../util.js");
 
 class PlexPicture extends PlexFileContent {
     constructor(data, sectionID, server) {

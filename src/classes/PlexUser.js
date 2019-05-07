@@ -1,9 +1,8 @@
-const fs = require("fs");
 const crypto = require("crypto");
 const requestReq = require("request");
 
 const PlexServer = require("./PlexServer.js");
-const util = require("./../util.js");
+const util = require("../util.js");
 
 class PlexUser {
     constructor(data) {
