@@ -8,3 +8,4 @@ dist/plexApi.js
 dist/plexApi.d.ts
 dist/secrets.json
 *.map
+docs
