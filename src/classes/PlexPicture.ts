@@ -1,18 +1,21 @@
-const PlexFileContent = require("./PlexFileContent.js");
-const util = require("../util.js");
+import { PlexFileContent } from "./PlexFileContent.js";
+import util = require("../util.js");
+import { PlexServer } from "./PlexServer.js";
 
-class PlexPicture extends PlexFileContent {
-    constructor(data, sectionID, server) {
+export class PlexPicture extends PlexFileContent {
+    height: number;
+    width: number;
+    constructor(data: any, sectionID: number, server: PlexServer) {
         super(data, sectionID, server);
         this.height = data.Media[0].height;
         this.width = data.Media[0].width;
         util.valueCheck(this);
     }
 
-    getImageURL(x, y) {
+    getImageURL(x: string, y: string): string {
         let undefCount = 0;
-        undefCount += x === undefined;
-        undefCount += y === undefined;
+        undefCount += +(x === undefined);
+        undefCount += +(y === undefined);
         if (undefCount === 1)
             throw new Error("Either specify none or both values");
         if (undefCount === 2)
@@ -20,10 +23,10 @@ class PlexPicture extends PlexFileContent {
         return this.server.makeRequestURL("/photo/:/transcode?width=" + x + "&height=" + y + "&minSize=1&url=" + this.filepath);
     }
 
-    async getImageBuffer(x, y) {
+    async getImageBuffer(x: string, y: string) {
         let undefCount = 0;
-        undefCount += x === undefined;
-        undefCount += y === undefined;
+        undefCount += +(x === undefined);
+        undefCount += +(y === undefined);
         if (undefCount === 1)
             throw new Error("Either specify none or both values");
         if (undefCount === 2)
@@ -31,5 +34,3 @@ class PlexPicture extends PlexFileContent {
         return await this.server.request("/photo/:/transcode?width=" + x + "&height=" + y + "&minSize=1&url=" + this.filepath, "GET", "image/png");
     }
 }
-
-module.exports = PlexPicture;

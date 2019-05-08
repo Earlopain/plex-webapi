@@ -1,21 +1,29 @@
-const request = require("request");
+import request = require("request");
 
-const PlexSection = require("./PlexSection.js");
+import { PlexSection } from "./PlexSection.js";
+import { PlexArtist } from "./PlexArtist.js";
+import { PlexPicture } from "./PlexPicture.js";
 
-class PlexServer {
-    constructor(server, token) {
-        this.server = server;
+export class PlexServer {
+    hostname: string;
+    token: string;
+    constructor(hostname: string, token: string) {
+        this.hostname = hostname;
         this.token = token;
     }
 
-    makeRequestURL(url){
+    makeRequestURL(url: string): string {
+        if (!url.startsWith("/")) {
+            console.log("Url not starting with /, added it");
+            url = "/" + url;
+        }
         if (!url.includes("?"))
-            return this.server + url + "?X-Plex-Token=" + this.token;
+            return this.hostname + url + "?X-Plex-Token=" + this.token;
         else
-            return this.server + url + "&X-Plex-Token=" + this.token;
+            return this.hostname + url + "&X-Plex-Token=" + this.token;
     }
 
-    request(url, method, mime) {
+    request(url: string, method?: string, mime?: string): PromiseLike<string | any> {
         if (!method)
             method = "GET";
         if (!mime)
@@ -29,7 +37,7 @@ class PlexServer {
                 method: method, uri: encodeURI(url), headers: {     //enocdeURI takes care of chars like é which
                     "Accept": mime                   //would otherwise result in malfored requests
                 }, encoding: returnBinary ? null : undefined
-            }, (error, response, body) => {
+            }, (error, response, body: string) => {
                 if (error)
                     debugger;
                 if (response.statusCode === 401)
@@ -46,12 +54,12 @@ class PlexServer {
         });
     }
 
-    async getAllSections(){
-        const json = await this.request("/library/sections")
+    async getAllSections() {
+        const json = await this.request("/library/sections");
         return json.MediaContainer.Directory;
     }
 
-    async sectionNameToKey(string) {
+    async sectionNameToKey(string: string) {
         const json = await this.request("/library/sections");
         for (const dir of json.MediaContainer.Directory) {
             if (dir.title === string)
@@ -60,10 +68,9 @@ class PlexServer {
         throw new Error("Section not found");
     }
 
-    async getAllFromSectionID(section) {
-        let json = await this.request("/library/sections/" + section + "/all", "GET");
-        return await new PlexSection(json, this);
+    async getAllFromSectionID(sectionID: number): Promise<(PlexArtist | PlexPicture)[]>  {
+        const json = await this.request("/library/sections/" + sectionID + "/all?X-Plex-Container-Start=0&X-Plex-Container-Size=0", "GET");
+        const section = new PlexSection(json, this);
+        return await section.getContent();
     }
 }
-
-module.exports = PlexServer;

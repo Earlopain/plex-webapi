@@ -1,9 +1,8 @@
-const request = require("request");
-const fs = require("fs");
-const crypto = require('crypto');
-const xmlParserFunction = require('xml2js').parseString;
+import * as request from "request";
 
-function valueCheck(that) {
+import { parseString as xmlParserFunction } from "xml2js";
+
+export function valueCheck(that: any) {
     for (const key of Object.keys(that)) {
         if (key === "thumbpath" && that[key] === undefined)
             that[key] = "/";        //TODO find blank image
@@ -12,11 +11,11 @@ function valueCheck(that) {
     }
 }
 
-function getJSON(url, headers) {
+export function getJSON(url: string, headers: any): PromiseLike<any> {
     return new Promise(resolve => {
         request({
             method: "GET", uri: encodeURI(url), headers: headers     //enocdeURI takes care of chars like é which
-        }, (error, response, body) => {
+        }, (error, response, body: string) => {
             if (error)
                 debugger;
             resolve(JSON.parse(body));
@@ -24,11 +23,11 @@ function getJSON(url, headers) {
     });
 }
 
-function postJSON(url, headers2, data) {
+export function postJSON(url: string, headers2: any): PromiseLike<any> {
     return new Promise(resolve => {
         request({
-            method: "POST", uri: encodeURI(url), headers: headers2, formData: data     //enocdeURI takes care of chars like é which
-        }, (error, response, body) => {
+            method: "POST", uri: encodeURI(url), headers: headers2     //enocdeURI takes care of chars like é which
+        }, (error: any, response: any, body: string) => {
             if (error)
                 debugger;
             resolve(JSON.parse(body));
@@ -36,15 +35,10 @@ function postJSON(url, headers2, data) {
     });
 }
 
-function xmlParser(xmlstring) {
+export function xmlParser(xmlstring: string): PromiseLike<any> {
     return new Promise(resolve => {
         xmlParserFunction(xmlstring, function (err, result) {
             resolve(result);
         });
     })
 }
-
-exports.valueCheck = valueCheck;
-exports.getJSON = getJSON;
-exports.postJSON = postJSON;
-exports.xmlParser = xmlParser;

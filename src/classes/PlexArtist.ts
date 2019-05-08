@@ -1,8 +1,12 @@
-const PlexGenericFile = require("./PlexGenericFile.js");
-const util = require("../util.js");
+import { PlexGenericFile } from "./PlexGenericFile.js";
+import util = require("../util.js");
+import { PlexServer } from "./PlexServer.js";
+import { PlexAlbum } from "./PlexAlbum.js";
 
-class PlexArtist extends PlexGenericFile {
-    constructor(data, sectionID, server) {
+export class PlexArtist extends PlexGenericFile {
+    genres: string[];
+    albums: PlexAlbum[];
+    constructor(data, sectionID: number, server: PlexServer) {
         super(data, sectionID, server);
         this.genres = [];
         if (!data.Genre)
@@ -13,6 +17,10 @@ class PlexArtist extends PlexGenericFile {
             }
         }
 
+
+    }
+
+    async getContent() {//TODO
         return new Promise(async resolve => {
             const data = await this.server.request("/library/metadata/" + this.key + "/children");
             this.albums = await PlexAlbum.getAlbumsFromArtistData(data.MediaContainer, this.sectionID, this.server);
@@ -22,5 +30,3 @@ class PlexArtist extends PlexGenericFile {
         })
     }
 }
-
-module.exports = PlexArtist;

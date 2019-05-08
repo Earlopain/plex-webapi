@@ -1,7 +1,15 @@
-const util = require("./../util.js");
+import util = require("../util.js");
+import { PlexServer } from "./PlexServer.js";
 
-class PlexGenericFile {
-    constructor(data, sectionID, server) {
+export class PlexGenericFile {
+    addedAt: number;
+    updatedAt: number;
+    key: number;
+    title: string;
+    sectionID: number;
+    thumbpath: string;
+    server: PlexServer;
+    constructor(data, sectionID: number, server: PlexServer) {
         if (!sectionID || !server)
             throw new Error("Forgot to put section id/server");
         this.addedAt = data.addedAt === undefined ? -1 : data.addedAt;
@@ -14,10 +22,10 @@ class PlexGenericFile {
         util.valueCheck(this);
     }
 
-    getThumbnailURL(x, y) {
+    getThumbnailURL(x?: number, y?: number): string {
         let undefCount = 0;
-        undefCount += x === undefined;
-        undefCount += y === undefined;
+        undefCount += +(x === undefined);
+        undefCount += +(y === undefined);
         if (undefCount === 1)
             throw new Error("Either specify none or both values");
         if (undefCount === 2)
@@ -25,10 +33,10 @@ class PlexGenericFile {
         return this.server.makeRequestURL("/photo/:/transcode?width=" + x + "&height=" + y + "&minSize=1&url=" + this.thumbpath);
     }
 
-    async getThumbnailBuffer(x, y) {
+    async getThumbnailBuffer(x?: number, y?: number) {
         let undefCount = 0;
-        undefCount += x === undefined;
-        undefCount += y === undefined;
+        undefCount += +(x === undefined);
+        undefCount += +(y === undefined);
         if (undefCount === 1)
             throw new Error("Either specify none or both values");
         if (undefCount === 2)
@@ -46,7 +54,7 @@ class PlexGenericFile {
     }
 
     async setTags(tagarray) {
-        await removeAllTags();
+        await this.removeAllTags();
         let tagString = "";
         tagarray.forEach((tag, index) => {
             tagString += "tag[" + index + "].tag.tag=" + tag.replace(/_/g, " ") + "&";
@@ -63,7 +71,7 @@ class PlexGenericFile {
         await this.server.request("/library/sections/" + this.sectionID + "/all?type=12,13&id=" + this.key + "&" + tagString, "PUT");
     }
 
-    async getAllTags() {
+    async getAllTags(): Promise<string[]> {
         const json = await this.getMetadata();
         if (!json.MediaContainer.Metadata[0].Tag)
             return [];
@@ -78,5 +86,3 @@ class PlexGenericFile {
         return await this.server.request("/library/metadata/" + this.key, "GET");
     }
 }
-
-module.exports = PlexGenericFile;

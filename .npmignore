@@ -1,0 +1,10 @@
+src
+.vscode
+node_modules
+.gitignore
+.npmignore
+tsconfig.json
+dist/plexApi.js
+dist/plexApi.d.ts
+dist/secrets.json
+*.map
