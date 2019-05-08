@@ -35,10 +35,31 @@ export function postJSON(url: string, headers2: any): PromiseLike<any> {
     });
 }
 
-export function xmlParser(xmlstring: string): PromiseLike<any> {
+export function xmlToJSON(xmlstring: string): PromiseLike<any> {
     return new Promise(resolve => {
-        xmlParserFunction(xmlstring, function (err, result) {
-            resolve(result);
+        xmlParserFunction(xmlstring, function (err, xml) {
+            resolve(itterate(xml));
+
+            function itterate(xml) {
+                let result: any = {};
+                for (const key of Object.keys(xml)) {
+                    if (key === "$") {
+                        for (const valueKey of Object.keys(xml[key])) {
+                            result[valueKey] = xml[key][valueKey];
+                        }
+                    }
+                    else if (Array.isArray(xml[key])) {
+                        let array = [];
+                        for(const valueKey of xml[key]){
+                            array.push(itterate(valueKey));
+                        }
+                        result[key] = array;
+                    }
+                    else
+                        result[key] = itterate(xml[key]);
+                }
+                return result;
+            }
         });
     })
 }

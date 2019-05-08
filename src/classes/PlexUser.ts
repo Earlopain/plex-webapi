@@ -25,11 +25,17 @@ export class PlexUser {
                 const json = await util.postJSON("https://plex.tv/api/v2/users/signin.json" + "?login=" + data.email + "&password=" + data.password, {
                     "X-Plex-Client-Identifier": "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
                         (parseInt(c) ^ crypto.randomBytes(8)[0] & 15 >> parseInt(c) / 4).toString(16))
-                })
+                });
+                if (json.errors)
+                    throw new Error("Check plexToken");
                 resolve(new PlexUser({ email: data.email, username: json.title, token: json.authToken, avatar: json.thumb }));
             }
             else {
                 let account = await PlexUser.getAccountDetails(data.token);
+                console.log(JSON.stringify(account, null, 4));
+
+                if (account.error)
+                    throw new Error("Check plexToken");
                 account = account.user;
                 resolve(new PlexUser({ email: account.email, username: account.title, token: data.token, avatar: account.thumb }));
             }
@@ -49,16 +55,16 @@ export class PlexUser {
     async getAvailableServers(): Promise<PlexServer[]> {
         let result = [];
         const str = await this.request("/pms/resources.xml?includeHttps=1");
-        const xml = await util.xmlParser(str);
-        const servers = xml.MediaContainer.Device.filter(element => {
-            element = element["$"];
+        const json = await util.xmlToJSON(str);
+        const servers = json.MediaContainer.Device.filter(element => {
+            element = element;
             return element.provides === "server";
         }).map(element => {
-            if (element["$"].publicAddressMatches === "1")
-                element["$"].Connection = element.Connection[0]["$"];
+            if (element.publicAddressMatches === "1")
+                element.Connection = element.Connection[0];
             else
-                element["$"].Connection = element.Connection[1]["$"];
-            return element["$"];
+                element.Connection = element.Connection[1];
+            return element;
         });
         for (const server of servers) {
             result.push(await new PlexServer(server.Connection.uri, server.accessToken));
@@ -90,8 +96,6 @@ export class PlexUser {
             }, (error, response, body) => {
                 if (error)
                     debugger;
-                if (response.statusCode === 422)
-                    throw new Error("Check Plex Token");
                 resolve(body);
             });
         });
@@ -107,8 +111,6 @@ export class PlexUser {
             }, (error, response, body) => {
                 if (error)
                     debugger;
-                if (response.statusCode === 422)
-                    throw new Error("Check Plex Token");
                 resolve(body);
             });
         });
