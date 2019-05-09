@@ -3,7 +3,7 @@ import path = require("path");
 import { PlexUser } from "../src/classes/PlexUser.js";
 import { PlexSection } from "../src/classes/PlexSection.js";
 
-const plexToken = JSON.parse(fs.readFileSync(__dirname + "/secrets.json", "utf8")).plexToken;
+const plexToken = JSON.parse(fs.readFileSync("./demo/secrets.json", "utf8")).plexToken;
 
 async function main() {
     let user = await PlexUser.init({ token: plexToken });

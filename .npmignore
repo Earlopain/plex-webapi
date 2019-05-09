@@ -1,10 +1,6 @@
 src
 .vscode
-node_modules
-.gitignore
-.npmignore
+docs
 tsconfig.json
-dist/demo
 demo
 *.map
-docs

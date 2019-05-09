@@ -1,15 +1,14 @@
 {
-    "compilerOptions": {
-      "module": "commonjs",
-      "target": "es2017",
-      "declaration": true,
-      "outDir": "./dist",
-      "noFallthroughCasesInSwitch": true,
-      "noImplicitReturns": true,
-      "sourceMap": true
-    },
-    "include": [
-      "src/**/*",
-      "demo/**/*"
-    ]
-  }
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2017",
+    "declaration": true,
+    "outDir": "./dist",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "sourceMap": true
+  },
+  "include": [
+    "src/**/*", "demo"
+  ]
+}
