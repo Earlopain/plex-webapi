@@ -4,8 +4,7 @@ node_modules
 .gitignore
 .npmignore
 tsconfig.json
-dist/plexApi.js
-dist/plexApi.d.ts
-dist/secrets.json
+dist/demo
+demo
 *.map
 docs
