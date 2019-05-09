@@ -6,6 +6,7 @@ export class PlexGenericFile {
     updatedAt: number;
     key: number;
     title: string;
+    type: string;
     sectionID: number;
     thumbpath: string;
     server: PlexServer;
@@ -16,6 +17,7 @@ export class PlexGenericFile {
         this.updatedAt = data.updatedAt === undefined ? -1 : data.updatedAt;
         this.key = data.ratingKey === undefined ? data.key : data.ratingKey;
         this.title = data.title ? data.title : data.title2;
+        this.type = data.type;
         this.sectionID = sectionID;
         this.thumbpath = data.thumb;
         this.server = server;
@@ -34,14 +36,8 @@ export class PlexGenericFile {
     }
 
     async getThumbnailBuffer(x?: number, y?: number) {
-        let undefCount = 0;
-        undefCount += +(x === undefined);
-        undefCount += +(y === undefined);
-        if (undefCount === 1)
-            throw new Error("Either specify none or both values");
-        if (undefCount === 2)
-            return await this.server.request(this.thumbpath, "GET", "image/png");
-        return await this.server.request("/photo/:/transcode?width=" + x + "&height=" + y + "&minSize=1&url=" + this.thumbpath, "GET", "image/png");
+        const url = this.getThumbnailURL(x, y);
+        return await this.server.request(url, "GET", "image/png");
     }
 
     async addTags(tagarray) {
@@ -50,7 +46,7 @@ export class PlexGenericFile {
             tagString += "tag[" + index + "].tag.tag=" + tag.replace(/_/g, " ") + "&";
         });
         tagString = tagString.slice(0, -1);
-        await this.server.request("/library/sections/" + this.sectionID + "/all?type=13&id=" + this.key + "&" + tagString, "PUT");
+        await this.server.request("/library/sections/" + this.sectionID + "/all?id=" + this.key + "&" + tagString, "PUT");
     }
 
     async setTags(tagarray) {
@@ -60,7 +56,7 @@ export class PlexGenericFile {
             tagString += "tag[" + index + "].tag.tag=" + tag.replace(/_/g, " ") + "&";
         });
         tagString = tagString.slice(0, -1);
-        await this.server.request("/library/sections/" + this.sectionID + "/all?type=13&id=" + this.key + "&" + tagString, "PUT");
+        await this.server.request("/library/sections/" + this.sectionID + "/all?id=" + this.key + "&" + tagString, "PUT");
     }
 
     async  removeTags(tagarray) {
@@ -68,7 +64,7 @@ export class PlexGenericFile {
         tagarray.forEach((tag, index) => {
             tagString += tag.replace(/_/g, " ") + ",";
         });
-        await this.server.request("/library/sections/" + this.sectionID + "/all?type=12,13&id=" + this.key + "&" + tagString, "PUT");
+        await this.server.request("/library/sections/" + this.sectionID + "/all?id=" + this.key + "&" + tagString, "PUT");
     }
 
     async getAllTags(): Promise<string[]> {
