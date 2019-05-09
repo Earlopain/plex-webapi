@@ -11,7 +11,7 @@ export function valueCheck(that: any) {
     }
 }
 
-export function getJSON(url: string, headers: any): PromiseLike<any> {
+export function getJSON(url: string, headers: any): Promise<any> {
     return new Promise(resolve => {
         request({
             method: "GET", uri: encodeURI(url), headers: headers     //enocdeURI takes care of chars like é which
@@ -23,7 +23,7 @@ export function getJSON(url: string, headers: any): PromiseLike<any> {
     });
 }
 
-export function postJSON(url: string, headers2: any): PromiseLike<any> {
+export function postJSON(url: string, headers2: any): Promise<any> {
     return new Promise(resolve => {
         request({
             method: "POST", uri: encodeURI(url), headers: headers2     //enocdeURI takes care of chars like é which
@@ -35,7 +35,7 @@ export function postJSON(url: string, headers2: any): PromiseLike<any> {
     });
 }
 
-export function xmlToJSON(xmlstring: string): PromiseLike<any> {
+export function xmlToJSON(xmlstring: string): Promise<any> {
     return new Promise(resolve => {
         xmlParserFunction(xmlstring, function (err, xml) {
             resolve(itterate(xml));

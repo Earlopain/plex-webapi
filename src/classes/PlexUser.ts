@@ -16,7 +16,7 @@ export class PlexUser {
         this.avatar = data.avatar;
     }
 
-    static init(data: { email?: string; password?: string; token?: string; }): PromiseLike<PlexUser> {
+    static init(data: { email?: string; password?: string; token?: string; }): Promise<PlexUser> {
         if (!(data.email && data.password) && !data.token) {
             throw new Error("Either provide email/password or token");
         }
@@ -32,8 +32,6 @@ export class PlexUser {
             }
             else {
                 let account = await PlexUser.getAccountDetails(data.token);
-                console.log(JSON.stringify(account, null, 4));
-
                 if (account.error)
                     throw new Error("Check plexToken");
                 account = account.user;
@@ -86,7 +84,7 @@ export class PlexUser {
             return "https://plex.tv" + url + "&X-Plex-Token=" + token;
     }
 
-    request(url: string): PromiseLike<string> {
+    request(url: string): Promise<string> {
         url = this.makeRequestURL(url);
         return new Promise(resolve => {
             request({
@@ -101,7 +99,7 @@ export class PlexUser {
         });
     }
 
-    private static request(url: string, token: string): PromiseLike<string> {
+    private static request(url: string, token: string): Promise<string> {
         url = PlexUser.makeRequestURL(url, token);
         return new Promise(resolve => {
             request({
