@@ -7,12 +7,25 @@ import { PlexPicture } from "./PlexPicture.js";
 export class PlexServer {
     hostname: string;
     token: string;
+    private _name: string;
     constructor(hostname: string, token: string) {
         this.hostname = hostname;
         this.token = token;
     }
 
+    getName(): Promise<string> {
+        return new Promise(async resolve => {
+            if (this._name)
+                resolve(this._name);
+            const json = await this.request("/media/providers");
+            this._name = json.MediaContainer.friendlyName;
+            resolve(this._name);
+        })
+    }
+
     makeRequestURL(url: string): string {
+        if (url.includes("X-Plex-Token="))
+            return url;
         if (!url.startsWith("/")) {
             console.log("Url not starting with /, added it");
             url = "/" + url;
@@ -23,7 +36,7 @@ export class PlexServer {
             return this.hostname + url + "&X-Plex-Token=" + this.token;
     }
 
-    request(url: string, method?: string, mime?: string): PromiseLike<string | any> {
+    request(url: string, method?: string, mime?: string): Promise<string | any> {
         if (!method)
             method = "GET";
         if (!mime)
@@ -54,9 +67,13 @@ export class PlexServer {
         });
     }
 
-    async getAllSections() {
+    async getAllSections(): Promise<PlexSection[]> {
+        let result = [];
         const json = await this.request("/library/sections");
-        return json.MediaContainer.Directory;
+        for (const section of json.MediaContainer.Directory) {
+            result.push(new PlexSection(section, this));
+        }
+        return result;
     }
 
     async sectionNameToKey(string: string) {
@@ -68,9 +85,9 @@ export class PlexServer {
         throw new Error("Section not found");
     }
 
-    async getAllFromSectionID(sectionID: number): Promise<(PlexArtist | PlexPicture)[]>  {
+    async getAllFromSectionID(sectionID: number): Promise<(PlexArtist | PlexPicture)[]> {
         const json = await this.request("/library/sections/" + sectionID + "/all?X-Plex-Container-Start=0&X-Plex-Container-Size=0", "GET");
         const section = new PlexSection(json, this);
-        return await section.getContent();
+        return await section.getAllContent();
     }
 }
